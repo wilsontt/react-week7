@@ -1,0 +1,58 @@
+html,
+body {
+  height: 100%;
+  text-align: center;
+}
+
+.login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.form-signin {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  margin: auto;
+}
+
+img {
+  object-fit: contain;
+  max-width: 100%;
+}
+
+.primary-image {
+  height: 300px;
+}
+
+.images {
+  height: 150px;
+}
+
+/* Change 1: Navbar brand shield icon (me-2, size 24) - path color to blue */
+.navbar-brand svg.me-2 path {
+  color: var(--bs-blue);
+}
+
+/* Change 2: Navbar nav button icon (me-1, size 18) - path line-height */
+.navbar-nav .nav-link svg.me-1 path {
+  line-height: 36px;
+}
+
+/* Change 3: Navbar nav active button icon (me-1) - svg line-height */
+.navbar-nav .nav-link.active svg.me-1 {
+  line-height: 30px;
+}
+
+/* Change 4: IconBase svg - yellow color (applies to nav icons) */
+.navbar-nav .nav-link svg.me-1 {
+  color: var(--bs-yellow);
+}
+
+/* Change 5: ProductListPage h2 - blue color (scoped to container-fluid row structure) */
+.container .row.container-fluid h2 {
+  color: var(--bs-blue);
+}
