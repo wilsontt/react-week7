@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 
+import { login } from '../../slices/authSlice';
+import { createAsynceMessage } from '../../slices/messageSlice';
+import { useDispatch } from 'react-redux';
+
 // API 設定
 const API_BASE = import.meta.env.VITE_API_BASE;
 // const API_PATH = import.meta.env.VITE_API_PATH; // 保留供未來使用
@@ -10,6 +14,7 @@ const API_BASE = import.meta.env.VITE_API_BASE;
 
 function Login({ setIsAuth }) {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     // 使用 React HookForm 來管理表單狀態和驗證
     const { 
@@ -43,17 +48,26 @@ function Login({ setIsAuth }) {
         // 設定 token 到 state，並設定登入狀態為 true，並跳轉到產品列表頁面。
         setLoginResult({ token, expired });
         setIsAuth(true);
+        dispatch(login({ token, expired }));
+        dispatch(createAsynceMessage({
+          success: true,
+          message: "登入成功",
+        }))
         navigate("/admin/productListPage");
 
       } catch (error) {
         setIsAuth(false); // 登入失敗，設置登入狀態為 false
+        dispatch(createAsynceMessage({
+          success: false,
+          message: "登入失敗，請重新確認你的帳號、密碼是否正確。",
+        }));
         // 使用 alert 顯示錯誤訊息
-        window.alert('登入失敗，請重新確認你的帳號、密碼是否正確。');
-        if (axios.isAxiosError(error) && error.response) {
-          console.error('登入失敗，錯誤訊息：', error.response);
-        } else {
-          console.error('登入失敗，錯誤訊息：', error);
-        }
+        // window.alert('登入失敗，請重新確認你的帳號、密碼是否正確。');
+        // if (axios.isAxiosError(error) && error.response) {
+        //   console.error('登入失敗，錯誤訊息：', error.response);
+        // } else {
+        //   console.error('登入失敗，錯誤訊息：', error);
+        // }
       }
     };
 

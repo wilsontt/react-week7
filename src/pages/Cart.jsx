@@ -166,9 +166,10 @@ const Cart = () => {
         message: "訂單送出確認成功",
       }));
 
-      // 訂單送出成功後：清空購物車、重置表單、關閉訂單表單區塊
+      // 訂單送出成功後：清空購物車(包含Navbar的購物車數量)、重置表單、關閉訂單表單區塊
       // await deleteCartAll();
       setCartData({ carts: [], total: 0, final_total: 0});
+      dispatch(setCart({ carts: [], total: 0, final_total: 0 }));
       reset();
       setIsOrderFormExpanded(false);
     } catch (err) {
