@@ -57,6 +57,7 @@ function Login({ setIsAuth }) {
 
       } catch (error) {
         setIsAuth(false); // 登入失敗，設置登入狀態為 false
+        console.error('登入失敗，錯誤訊息：', error);
         dispatch(createAsynceMessage({
           success: false,
           message: "登入失敗，請重新確認你的帳號、密碼是否正確。",
