@@ -13,7 +13,7 @@
 
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { createAsynceMessage } from "../../slices/messageSlice";
+import { createAsyncMessage } from "../../slices/messageSlice";
 
 function MessageToast() {
 

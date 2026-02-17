@@ -13,7 +13,7 @@
 import { FaStar, FaRegStar } from "react-icons/fa";
 
 import { useDispatch } from 'react-redux';
-import { createAsynceMessage } from '../../slices/messageSlice';
+import { createAsyncMessage } from '../../slices/messageSlice';
 
 function ProductForm({ 
     modalType, templateData, productModalRef, handleModalInputChange, handleModalImageFileUpload, 

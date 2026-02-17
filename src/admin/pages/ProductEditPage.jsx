@@ -7,7 +7,7 @@ import Pagination from '../components/Pagination';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 // import ProductDetail from '../components/ProductDetail';
 
-import { createAsynceMessage } from '../../slices/messageSlice';
+import { createAsyncMessage } from '../../slices/messageSlice';
 import { useDispatch } from 'react-redux';
 
 import * as bootstrap from 'bootstrap'
@@ -64,7 +64,7 @@ const ProductEditPage = () => {
         } catch (error) {
             console.log('取得產品資料失敗', error.response);
             // 加入失敗的 Alert 提示。
-            dispatch(createAsynceMessage(error.response?.data));
+            dispatch(createAsyncMessage(error.response?.data));
         }
     }, [dispatch]);
     // 畫面渲染完後執行：元件掛載後，取得資料並設定 Bootstrap Modal 元件的參數。
@@ -306,7 +306,7 @@ const ProductEditPage = () => {
                 ? "編輯產品資料成功"
                 : "新增產品資料成功";
             // alert(successMsg);
-            dispatch(createAsynceMessage({
+            dispatch(createAsyncMessage({
               success: true,
               message: successMsg,
             }))
@@ -320,7 +320,7 @@ const ProductEditPage = () => {
                 || error.message
                 || '資料儲存失敗，請檢查輸入資料';
             // alert(`儲存失敗：${errorMsg}`);
-            dispatch(createAsynceMessage({
+            dispatch(createAsyncMessage({
               success: false,
               message: `儲存失敗：${errorMsg}`,
             }))
@@ -343,7 +343,7 @@ const ProductEditPage = () => {
                 || err.message
                 || '刪除失敗，請稍後再試。';
             // alert(`刪除產品失敗： ${errorMsg}`);
-            dispatch(createAsynceMessage({
+            dispatch(createAsyncMessage({
               success: false,
               message: `刪除產品失敗： ${errorMsg}`,
             }))

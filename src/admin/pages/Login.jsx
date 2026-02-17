@@ -4,7 +4,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 
 import { login } from '../../slices/authSlice';
-import { createAsynceMessage } from '../../slices/messageSlice';
+import { createAsyncMessage } from '../../slices/messageSlice';
 import { useDispatch } from 'react-redux';
 
 // API 設定
@@ -49,7 +49,7 @@ function Login({ setIsAuth }) {
         setLoginResult({ token, expired });
         setIsAuth(true);
         dispatch(login({ token, expired }));
-        dispatch(createAsynceMessage({
+        dispatch(createAsyncMessage({
           success: true,
           message: "登入成功",
         }))
@@ -58,7 +58,7 @@ function Login({ setIsAuth }) {
       } catch (error) {
         setIsAuth(false); // 登入失敗，設置登入狀態為 false
         console.error('登入失敗，錯誤訊息：', error);
-        dispatch(createAsynceMessage({
+        dispatch(createAsyncMessage({
           success: false,
           message: "登入失敗，請重新確認你的帳號、密碼是否正確。",
         }));

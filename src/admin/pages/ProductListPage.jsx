@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
-import { createAsynceMessage } from '../../slices/messageSlice';
+import { createAsyncMessage } from '../../slices/messageSlice';
 import { useDispatch } from 'react-redux';
 
 // 共用元件
@@ -36,7 +36,7 @@ const ProductListPage = () => {
       // console.log(response.data);
     } catch (error) {
       console.error('取得產品資料失敗', error);
-      dispatch(createAsynceMessage(error.response?.data));
+      dispatch(createAsyncMessage(error.response?.data));
     }
   }, [dispatch]);
 

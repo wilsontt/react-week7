@@ -5,7 +5,7 @@ import { FaEye, FaStar, FaRegStar, FaList } from "react-icons/fa";
 import Pagination from "../components/common/Pagination";
 import ProductDetailCard from "../components/common/ProductDetailCard";
 
-import { setCart, addToCartAsync } from '../slices/cartSlice';
+import { addToCartAsync } from '../slices/cartSlice';
 import { useDispatch } from 'react-redux';
 
 

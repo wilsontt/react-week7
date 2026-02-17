@@ -30,8 +30,8 @@ export const messageSlice = createSlice({
   });
 
   // 使用 createAsyncThunk 來建立非同步的 action, 自動關閉訊息。
-  export const createAsynceMessage = createAsyncThunk( 
-    'message/createAsynceMessage', 
+  export const createAsyncMessage = createAsyncThunk( 
+    'message/createAsyncMessage', 
     async (payload, { dispatch, requestId }) => {
       // 發送 createMessage 動作，並傳入 payload 和 requestId
       dispatch(createMessage({

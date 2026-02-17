@@ -6,6 +6,8 @@ import { useForm} from "react-hook-form";
 
 import { useSelector, useDispatch } from 'react-redux';
 import { getCartAsync } from '../slices/cartSlice';
+import { createAsyncMessage } from '../slices/messageSlice';
+
 
 const { VITE_API_BASE, VITE_API_PATH } = import.meta.env;
 
@@ -122,6 +124,10 @@ const Cart = () => {
       await dispatch(getCartAsync());
       reset();
       setIsOrderFormExpanded(false);
+      dispatch(createAsyncMessage({
+        success: true,
+        message: "訂單送出成功",
+      }));
     } catch (err) {
       console.error("訂單送出確認失敗", err.response?.data ?? err);
     }
