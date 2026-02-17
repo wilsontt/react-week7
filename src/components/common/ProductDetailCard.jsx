@@ -16,6 +16,7 @@ function ProductDetailCard({ selectedProduct, onClose, onAddToCart }) {
   const navigate = useNavigate();
   const modalRef = useRef(null);
   const modalInstanceRef = useRef(null);
+  
 
   /** 關閉後要導向的路徑（填寫訂單時設為 /Cart），在 hidden.bs.modal 時執行 */
   const afterCloseNavigateToRef = useRef(null);

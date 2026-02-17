@@ -178,15 +178,17 @@ export default function Navbar({ isAuth = false, setIsAuth }) {
           {/* 購物車數量（Redux）＋ 日期時間元件作為下拉觸發，下拉選單為登入/登出 */}
           <div className="position-relative d-flex align-items-center" ref={authDropdownRef}>
             <span className="position-relative d-inline-flex me-2">
-              <FaShoppingCart className="me-2 text-primary" size={18} />
-              {cartCount > 0 && (
-                <span 
-                  className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                    style={{ fontSize: '0.65rem' }}
-                  >
-                    {cartCount}
-                  </span>
-                )}
+              <Link to="/Cart">
+                <FaShoppingCart className="me-2 text-primary" size={18} />
+                {cartCount > 0 && (
+                  <span 
+                    className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                      style={{ fontSize: '0.65rem' }}
+                    >
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
             </span>
             <button
               type="button"

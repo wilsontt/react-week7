@@ -5,8 +5,7 @@ import { FaEye, FaStar, FaRegStar, FaList } from "react-icons/fa";
 import Pagination from "../components/common/Pagination";
 import ProductDetailCard from "../components/common/ProductDetailCard";
 
-// import { createAsynceMessage } from '../slices/messageSlice';
-import { setCart } from '../slices/cartSlice';
+import { setCart, addToCartAsync } from '../slices/cartSlice';
 import { useDispatch } from 'react-redux';
 
 
@@ -64,8 +63,10 @@ const ProductList = () => {
   const addCart = async (productId, qty) => {
     const url = `${VITE_API_BASE}/api/${VITE_API_PATH}/cart`;
     try {
-      await axios.post(url, { data: { product_id: productId, qty } });
-      dispatch(setCart({ carts: [{ product_id: productId, qty }], total: 0, final_total: 0 }));
+      // await axios.post(url, { data: { product_id: productId, qty } });
+      // dispatch(setCart({ carts: [{ product_id: productId, qty }], total: 0, final_total: 0 }));
+      // 成功加入購物車後，更新Navbar上的購物車數量。
+      dispatch(addToCartAsync({ product_id: productId, qty })).unwrap;
     } catch (error) {
       console.error('加入購物車失敗:', error);
     }
