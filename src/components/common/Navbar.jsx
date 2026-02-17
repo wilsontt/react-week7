@@ -1,15 +1,14 @@
 // 共用元件 導覽列
 import { useState, useRef, useEffect } from "react";
-import { data, Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaHome, FaList, FaEdit, FaShieldAlt, FaInfo, FaShoppingCart, FaClipboardList, FaTag, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
 import { DateTimeDisplay } from "../CalendarIcon";
 import * as bootstrap from "bootstrap";
 
 // 導入 Redux 狀態管理, 使用 useSelector 來取得購物車狀態
-import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
-import { setCart } from "../../slices/cartSlice";
+import { useDispatch, useSelector } from 'react-redux';
+import { getCartAsync } from "../../slices/cartSlice";
 
 
 /** 前台主要選單（不含後台） */
@@ -47,32 +46,11 @@ export default function Navbar({ isAuth = false, setIsAuth }) {
 
   // 使用 useDispatch 來發送 Redux 動作
   const dispatch = useDispatch();
+  const cartCount = useSelector((state) => state.cart.carts.length);
+  
 
-  // 使用 useSelector 來取得購物車狀態
-  const cartCount = useSelector((state) =>
-    (state.cart.carts ?? []).reduce((sum, item) =>
-      sum + (Number(item.qty ?? 0)), 0));
-
-  // 載入購物車資料到 Redux，確保 Navbar 顯示的購物車數量與 Cart 頁面一致
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const { VITE_API_BASE, VITE_API_PATH } = import.meta.env;
-        const url = `${VITE_API_BASE}/api/${VITE_API_PATH}/cart`;
-        const res = await axios.get(url);
-        if (!cancelled && res.data?.data) {
-          dispatch(setCart(res.data.data ?? { carts: [], total: 0, final_total: 0 }));
-        }
-      } catch (err) {
-        // 購物車 API 失敗時靜默處理（可能是未登入或購物車為空）
-        if (!cancelled) {
-          console.error("載入購物車資料失敗", err.response?.data ?? err);
-          dispatch(setCart({ carts: [], total: 0, final_total: 0 }));
-        }
-      }
-    })();
-    return () => { cancelled = true; };
+    dispatch(getCartAsync());
   }, [dispatch]);
 
   /** 點擊元件外時關閉後台管理下拉 */
@@ -200,19 +178,15 @@ export default function Navbar({ isAuth = false, setIsAuth }) {
           {/* 購物車數量（Redux）＋ 日期時間元件作為下拉觸發，下拉選單為登入/登出 */}
           <div className="position-relative d-flex align-items-center" ref={authDropdownRef}>
             <span className="position-relative d-inline-flex me-2">
-              <FaShoppingCart className="me-2 text-primary" size={18}
-                // onClick={() => {
-                //   navigate("/Cart");
-                // }}
-              />
-              {cartCount > 0 ? (
-                <span
+              <FaShoppingCart className="me-2 text-primary" size={18} />
+              {cartCount > 0 && (
+                <span 
                   className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                  style={{ transform: "translate(-50%, -50%)" }}
-                >
-                  {cartCount}
-                </span>
-              ) : null}
+                    style={{ fontSize: '0.65rem' }}
+                  >
+                    {cartCount}
+                  </span>
+                )}
             </span>
             <button
               type="button"

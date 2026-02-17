@@ -4,9 +4,8 @@ import axios from "axios";
 import { FaShoppingCart, FaTimes } from "react-icons/fa";
 import { useForm} from "react-hook-form";
 
-import { createAsynceMessage } from '../slices/messageSlice';
-import { setCart } from '../slices/cartSlice';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { getCartAsync } from '../slices/cartSlice';
 
 const { VITE_API_BASE, VITE_API_PATH } = import.meta.env;
 
@@ -16,49 +15,15 @@ const Cart = () => {
   /** 關閉後要導向的路徑（填寫訂單時設為 /Cart），在 hidden.bs.modal 時執行 */
   // const afterCloseNavigateToRef = useRef(null);
 
-  const [cartData, setCartData] = useState({
-    carts: [],
-    total: 0,
-    final_total: 0,
-  });
-
-  // 使用 useDispatch 來發送 Redux 動作
+  /** 購物車資料來源：Redux（getCartAsync 取得後由 extraReducers 寫入） */
+  const carts = useSelector((state) => state.cart.carts);
+  const total = useSelector((state) => state.cart.total);
+  const finalTotal = useSelector((state) => state.cart.final_total);
   const dispatch = useDispatch();
 
-  /** 取得購物車列表 GET api/cart */
-  const getCart = async () => {
-    try {
-      const url = `${VITE_API_BASE}/api/${VITE_API_PATH}/cart`;
-      const res = await axios.get(url);
-      setCartData(res.data.data ?? { carts: [], total: 0, final_total: 0 });
-      dispatch(setCart(res.data.data ?? { carts: [], total: 0, final_total: 0 }));
-      // console.log('購物車列表：', res.data.data);
-    } catch (err) {
-      console.error("取得購物車失敗", err.response?.data ?? err);
-      dispatch(createAsynceMessage({
-        success: false,
-        message: "取得購物車失敗：" + err.response?.data?.message || err.message || "請稍後再試。",
-      }));
-    }
-  };
-
-  // 取得購物車列表
+  /** 初次載入時取得購物車列表 */
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const url = `${VITE_API_BASE}/api/${VITE_API_PATH}/cart`;
-        const res = await axios.get(url);
-        if (!cancelled) {
-          setCartData(res.data.data ?? { carts: [], total: 0, final_total: 0 });
-          dispatch(setCart(res.data.data ?? { carts: [], total: 0, final_total: 0 }));
-          console.log("購物車列表:", res.data);
-        }
-      } catch (err) {
-        if (!cancelled) console.error("取得購物車失敗", err.response?.data ?? err);
-      }
-    })();
-    return () => { cancelled = true; };
+    dispatch(getCartAsync());
   }, [dispatch]);
 
   /** 更新商品數量 PUT api/cart/${cartId} */
@@ -67,7 +32,7 @@ const Cart = () => {
       const url = `${VITE_API_BASE}/api/${VITE_API_PATH}/cart/${cartId}`;
       await axios.put(url, { data: { product_id: productId, qty } });
       // console.log("更新購物車:", cartId, productId, qty);
-      getCart();
+      dispatch(getCartAsync());
     } catch (err) {
       console.error("更新購物車失敗", err.response?.data ?? err);
     }
@@ -78,30 +43,27 @@ const Cart = () => {
     try {
       const url = `${VITE_API_BASE}/api/${VITE_API_PATH}/cart/${id}`;
       await axios.delete(url);
-      getCart();
+      dispatch(getCartAsync());
     } catch (err) {
       console.error("刪除購物車失敗", err.response?.data ?? err);
     }
   };
 
   // 當購物車是空的時候, 清空購物車 功能要 disabled
-  const isCartEmpty = cartData.carts.length === 0;
+  const isCartEmpty = !carts?.length;
   const deleteCartAllDisabled = isCartEmpty ? "disabled" : "";
-  // const deleteCartDisabled = id => isCartEmpty ? "disabled" : "";
 
   /** 清空購物車 DELETE api/carts */
   const deleteCartAll = async () => {
     try {
       const url = `${VITE_API_BASE}/api/${VITE_API_PATH}/carts`;
       await axios.delete(url);
-      getCart();
+      dispatch(getCartAsync());
     } catch (err) {
       console.error("清空購物車失敗", err.response?.data ?? err);
     }
   };
 
-  const { carts } = cartData;
-  // console.log("目前購物車:", cartData);
   
     // 使用React HookForm 來管理表單狀態和驗證
     const {
@@ -123,10 +85,6 @@ const Cart = () => {
     });
     // console.log(errors);
   
-    // 提交訂單
-    // const onOrderSubmit = (data, message) => {
-      // console.log(data, message);    // 提交表單後，印出表單資料
-    // };
 
   /** 是否展開「填寫訂單資料」區塊；true = 顯示表單、按鈕為「取消結帳」，false = 隱藏表單、按鈕為「結帳」 */
   const [isOrderFormExpanded, setIsOrderFormExpanded] = useState(false);
@@ -159,26 +117,13 @@ const Cart = () => {
           payment_method: values.payment_method
         } 
       });
-      // console.log("訂單送出確認成功");
-      
-      dispatch(createAsynceMessage({
-        success: true,
-        message: "訂單送出確認成功",
-      }));
 
-      // 訂單送出成功後：清空購物車(包含Navbar的購物車數量)、重置表單、關閉訂單表單區塊
-      // await deleteCartAll();
-      setCartData({ carts: [], total: 0, final_total: 0});
-      dispatch(setCart({ carts: [], total: 0, final_total: 0 }));
+      //訂單送出成功後：重新取得購物車（後端會清空，故會取得空購物車）、重置表單、關閉訂單表單區塊 
+      await dispatch(getCartAsync());
       reset();
       setIsOrderFormExpanded(false);
     } catch (err) {
       console.error("訂單送出確認失敗", err.response?.data ?? err);
-      // 失敗時可顯示錯誤訊息給使用者（例如用 alert 或 toast）
-      dispatch(createAsynceMessage({
-        success: false,
-        message: "訂單送出確認失敗：" + err.response?.data?.message || err.message || "請稍後再試。",
-      }));
     }
   };
 
@@ -302,8 +247,10 @@ const Cart = () => {
                 </div>
               ))}
               <div className="d-flex justify-content-between align-items-center border-top pt-2 mt-2">
-                <strong>總計</strong>
-                <strong>NT：${(cartData.total).toLocaleString()}</strong>
+                <strong>總計 NT：</strong>
+                <h5 className="text-danger">
+                  <strong>${(total ?? 0).toLocaleString()}</strong>
+                </h5>
               </div>
             </div>
 
@@ -361,6 +308,7 @@ const Cart = () => {
                         {item.product?.title ?? "-"}
                       </td>
                       <td>
+                        {/* 數量的按鈕，使用 input 來輸入數量： - 和 + 按鈕來減少和增加數量 */}
                         <div className="d-flex align-items-center gap-1">
                           <div className="d-flex align-items-center border rounded">
                             <button
@@ -375,7 +323,7 @@ const Cart = () => {
                                 )
                               }
                             >
-                              −
+                              -
                             </button>
                             <input
                               type="number"
@@ -416,11 +364,15 @@ const Cart = () => {
                 </tbody>
                 <tfoot>
                   <tr className="text-end border-bottom">
-                    <td colSpan={4}>
-                      <strong>總計</strong>
+                    <td colSpan={4} className="text-end">
+                      <strong>總計 NT：</strong>
                     </td>
-                    <td>
-                      <strong>NT：${(cartData.total).toLocaleString()}</strong>
+                    <td className="text-center">
+                        <h5 className="text-danger">
+                          <strong>
+                            ${Number(total ?? 0).toLocaleString()}
+                          </strong>
+                        </h5>
                     </td>
                   </tr>
                 </tfoot>
@@ -531,13 +483,13 @@ const Cart = () => {
                                   <tbody>
                                     <tr>
                                       <td className="text-start">訂單金額(未稅）</td>
-                                      <td><strong>NT：${(cartData.total).toLocaleString()}</strong></td>
+                                      <td><strong>NT：${(finalTotal ?? 0).toLocaleString()}</strong></td>
                                     </tr>
                                     <tr>
                                       <td className="text-start">結帳總金額(含稅、運費)</td>
                                         <td><strong>NT：
                                             <b className="text-danger">
-                                              ${(cartData.final_total * 1.05).toLocaleString()}
+                                              ${((finalTotal ?? 0) * 1.05).toLocaleString()}
                                             </b>
                                           </strong></td>
                                     </tr>
