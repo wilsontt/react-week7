@@ -30,8 +30,8 @@ const ProductList = () => {
       const response = await axios.get(
         `${VITE_API_BASE}/api/${VITE_API_PATH}/products?page=${page}`
       );
-      setProducts(response.data.products);
-      setPagination(response.data.pagination);
+      setProducts(response.data?.products ?? []);
+      setPagination(response.data?.pagination ?? {});
       // 切換分頁後捲回列表頂部，避免停在分頁區
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
@@ -48,8 +48,8 @@ const ProductList = () => {
           `${VITE_API_BASE}/api/${VITE_API_PATH}/products?page=1`
         );
         if (!cancelled) {
-          setProducts(response.data.products);
-          setPagination(response.data.pagination);
+          setProducts(response.data?.products ?? []);
+          setPagination(response.data?.pagination ?? {});
           // console.log('取得產品列表:', response.data.products);  
         }
       } catch (error) {
@@ -102,7 +102,7 @@ const ProductList = () => {
         {/* 卡片間距：改 row 的 g-2 / g-3 / g-4 / g-5（愈大間距愈寬） */}
         <div className="container row mt-0 g-0">
           {
-            products.map((item) => {
+            (products ?? []).map((item) => {
               return (
                 <div className="col-12 col-md-6 col-lg-4 mt-2" key={item.id}>
                   <div className="card border border-0 text-center">

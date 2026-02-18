@@ -2,16 +2,18 @@
  * @file cartSlice.js
  * @description 客戶購物車 Redux 切片
  *
- * 目的：管理購物車全域狀態，供 Cart 頁、Navbar、加入購物車流程共用。
+ * 目的：管理購物車全域狀態，供 Cart 頁、Navbar、ProductList 加入購物車流程共用。
  * 資料來源：後端 API GET /api/cart，由 getCartAsync 非同步取得並寫入 state。
  *
  * 使用時機：
- * - Cart 頁初次載入、更新數量、刪除項目、清空購物車後
- * - 加入購物車後（可選 Navbar 購物車數量同步）
+ * - Cart 頁：初次載入、更新數量、刪除項目、清空購物車、訂單送出後
+ * - Navbar：初次載入時取得購物車數量
+ * - ProductList / ProductDetailCard：加入購物車後同步數量
  */
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+/** API 基底路徑，來自 Vite 環境變數 */
 const { VITE_API_BASE, VITE_API_PATH } = import.meta.env;
 
 /**
@@ -20,7 +22,7 @@ const { VITE_API_BASE, VITE_API_PATH } = import.meta.env;
  */
 const cartSlice = createSlice({
   name: 'cart',
-  /** 購物車 state 結構：carts 為商品陣列，total / final_total 為金額 */
+  /** 購物車 state：carts 為商品陣列，total / final_total 為訂單金額 */
   initialState: {
     carts: [],
     total: 0,
@@ -28,16 +30,16 @@ const cartSlice = createSlice({
   },
   reducers: {
     /**
-     * 以 payload 覆寫整個購物車 state
+     * 以 payload 覆寫整個購物車 state（同步用）
      * @param {Object} state - 當前 cart state
-     * @param {Object} action - Redux action，payload 為 { carts, total, final_total } 或 carts 陣列
+     * @param {Object} action - Redux action，payload 為 { carts, total, final_total }
      */
     setCart: (state, action) => {
       state.carts = action.payload;
     },
   },
   /**
-   * 處理 getCartAsync 非同步結果，將 API 回傳資料寫入 state
+   * 處理 getCartAsync.fulfilled：將 API 回傳的 { carts, total, final_total } 寫入 state
    */
   extraReducers: (builder) => {
     builder.addCase(getCartAsync.fulfilled, (state, action) => {
@@ -69,22 +71,25 @@ export const getCartAsync = createAsyncThunk(
   }
 );
 
-// 加入 Navbar 購物車數量同步
+/**
+ * 非同步加入購物車
+ * @description 呼叫 POST /api/cart，成功後 dispatch getCartAsync 更新 state（含 Navbar 數量）
+ * @param {Object} data - { product_id: string, qty: number }
+ * @example dispatch(addToCartAsync({ product_id: '-0jK4b6-r586NeGXGvKc', qty: 1 }))
+ */
 export const addToCartAsync = createAsyncThunk(
   'cart/addToCartAsync',
-  async (data, {dispatch}) => {
+  async (data, { dispatch }) => {
     try {
-      const res = await axios.post(`${VITE_API_BASE}/api/${VITE_API_PATH}/cart`, {data});
+      await axios.post(`${VITE_API_BASE}/api/${VITE_API_PATH}/cart`, { data });
       // console.log('addToCartAsync:', res.data);
       dispatch(getCartAsync());
-      // return res.data.data;
     } catch (error) {
       console.error('加入購物車失敗:', error);
-      // return error.response.data;
+      throw error;
     }
-  },
+  }
 );
-
 
 export const { setCart } = cartSlice.actions;
 

@@ -57,9 +57,9 @@ const ProductEditPage = () => {
             const response = await axios.get(
                 `${API_BASE}/api/${API_PATH}/admin/products?page=${page}`
             );
-            setProducts(response.data.products);
+            setProducts(response.data?.products ?? []);
             // 取得資料後，設定分頁資料。
-            setPagination(response.data.pagination);
+            setPagination(response.data?.pagination ?? {});
             // console.log(response.data);
         } catch (error) {
             console.log('取得產品資料失敗', error.response);
