@@ -101,35 +101,56 @@ const Cart = () => {
     }
   };
 
+  /**
+   * 依付款方式決定訂單 is_paid：
+   * - 貨到付款(3)、超商取貨(4) → 未付款
+   * - 信用卡(1)、ATM轉帳(2) → 已付款
+   */
+  const getIsPaidByPaymentMethod = (paymentMethod) => {
+    const unpaidMethods = ['3', '4'];
+    return !unpaidMethods.includes(String(paymentMethod));
+  };
+
   // 訂單送出確認
   const onOrderSubmitConfirm = async () => {
     // 取得表單欄位的值
-    const values = getValues();   
+    const values = getValues();
+    const isPaid = getIsPaidByPaymentMethod(values.payment_method);
     try {
       const url = `${VITE_API_BASE}/api/${VITE_API_PATH}/order`;
-      // console.log("訂單送出確認", values);
-      await axios.post(url, { 
+      const payload = {
         data: {
-          user: { 
-            name: values.name, 
-            email: values.email, 
-            tel: values.phone, 
-            address: values.address }, 
-          message: values.message, 
-          payment_method: values.payment_method
-        } 
-      });
+          user: {
+            name: values.name,
+            email: values.email,
+            tel: values.phone,
+            address: values.address,
+          },
+          message: values.message,
+          payment_method: values.payment_method,
+          is_paid: isPaid,
+        },
+      };
+      console.log('訂單送出 payload.is_paid:', payload.data.is_paid);
+      const response = await axios.post(url, payload);
 
-      //訂單送出成功後：重新取得購物車（後端會清空，故會取得空購物車）、重置表單、關閉訂單表單區塊 
+      //訂單送出成功後：重新取得購物車（後端會清空，故會取得空購物車）、重置表單、關閉訂單表單區塊
       await dispatch(getCartAsync());
       reset();
       setIsOrderFormExpanded(false);
+      console.log('訂單送出成功:', response.data); 
       dispatch(createAsyncMessage({
         success: true,
         message: "訂單送出成功",
       }));
     } catch (err) {
-      console.error("訂單送出確認失敗", err.response?.data ?? err);
+      const errData = err.response?.data;
+      const errMsg = errData?.message ?? err.message ?? "訂單送出失敗";
+      console.error("訂單送出確認失敗", errData ?? err);
+      dispatch(createAsyncMessage({
+        success: false,
+        message: errMsg,
+      }));
     }
   };
 
@@ -527,7 +548,7 @@ const Cart = () => {
                               (err) => console.log("表單驗證未過", err)
                             )();
                           }}
-                        >確認付款</button>
+                        >確認送出</button>
                         </div>
                       </div>
                   </div>  

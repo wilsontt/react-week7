@@ -9,6 +9,7 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 
 import { createAsyncMessage } from '../../slices/messageSlice';
 import { useDispatch } from 'react-redux';
+import { formatCurrency } from '../../utils/formatCurrency';
 
 import * as bootstrap from 'bootstrap'
 import "../assets/style.css"
@@ -67,6 +68,7 @@ const ProductEditPage = () => {
             dispatch(createAsyncMessage(error.response?.data));
         }
     }, [dispatch]);
+    
     // 畫面渲染完後執行：元件掛載後，取得資料並設定 Bootstrap Modal 元件的參數。
   useEffect(() => {
         const token = document.cookie 
@@ -358,8 +360,18 @@ const ProductEditPage = () => {
     const columns = [
         { key: 'category',     label: '分類',     className: 'text-left' },
         { key: 'title',        label: '產品名稱',  className: 'text-left' },
-        { key: 'origin_price', label: '原價',     className: 'text-center' },
-        { key: 'price',        label: '售價',     className: 'text-center' },
+        {
+            key: 'origin_price',
+            label: '原價',
+            className: 'text-center',
+            render: (item) => formatCurrency(item.origin_price ?? 0),
+        },
+        {
+            key: 'price',
+            label: '售價',
+            className: 'text-center',
+            render: (item) => formatCurrency(item.price ?? 0),
+        },
         { key: 'rating',       label: '評分',     className: 'text-center', 
             render: (item) => (
                 <span className="text-warning">

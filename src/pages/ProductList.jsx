@@ -141,8 +141,10 @@ const ProductList = () => {
                       <div className="mt-0 gap-2">{item.description}</div>
                       <div className="d-flex justify-content-between align-items-left mt-0 gap-2">
                         <div>價格：NT$
-                          <small className="text-decoration-line-through">{item.origin_price} </small>
-                          <span className="text-danger">{item.price}</span>
+                          <small className="text-decoration-line-through">
+                            {Number(item.origin_price).toLocaleString()} </small>
+                          <span className="text-danger">
+                            {Number(item.price).toLocaleString()} </span>
                         </div>
                         <div className="col-3 text-left g2">單位：{item.unit}</div>
                         <div className="col-3 text-left g2 d-flex align-items-center gap-1">

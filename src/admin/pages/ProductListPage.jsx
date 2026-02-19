@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 // 共用元件
 import ProductTable from '../components/ProductTable';
 import ProductDetail from '../components/ProductDetail';
+import { formatCurrency } from '../../utils/formatCurrency';
 import Pagination from '../components/Pagination';
 import { FaEye } from 'react-icons/fa';
 
@@ -61,8 +62,18 @@ const ProductListPage = () => {
     //  render: 自訂渲染函數（可選）
     const columns = [
       { key: 'title',        label: '產品名稱',  className: 'text-left' },
-      { key: 'origin_price', label: '原價',     className: 'text-center' },
-      { key: 'price',        label: '售價',     className: 'text-center' },
+      {
+        key: 'origin_price',
+        label: '原價',
+        className: 'text-center',
+        render: (item) => formatCurrency(item.origin_price ?? 0),
+      },
+      {
+        key: 'price',
+        label: '售價',
+        className: 'text-center',
+        render: (item) => formatCurrency(item.price ?? 0),
+      },
       {
         key: 'rating', label: '評分', className: 'text-center',
         render: (item) => (
